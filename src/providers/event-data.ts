@@ -1,18 +1,42 @@
 import { Injectable } from '@angular/core';
-import { Http } from '@angular/http';
-import 'rxjs/add/operator/map';
+import firebase from 'firebase';
 
-/*
-  Generated class for the EventData provider.
-
-  See https://angular.io/docs/ts/latest/guide/dependency-injection.html
-  for more info on providers and Angular 2 DI.
-*/
 @Injectable()
 export class EventData {
+  public currentUser: string;
+  public eventList: firebase.database.Reference;
 
-  constructor(public http: Http) {
-    console.log('Hello EventData Provider');
+  constructor() {
+    this.currentUser = firebase.auth().currentUser.uid;
+    this.eventList = firebase.database()
+        .ref(`userProfile/${this.currentUser}/eventList`);
+
+
   }
 
+
+ createEvent(eventName: string, eventDate: string, eventPrice: number, 
+    eventCost: number): firebase.Promise<any> {
+    return this.eventList.push({
+      name: eventName,
+      date: eventDate,
+      price: eventPrice * 1,
+      cost: eventCost * 1,
+      revenue: eventCost * -1
+    });
+  }
+
+  getEventList(): firebase.database.Reference {
+  return this.eventList;
 }
+
+
+
+getEventDetail(eventId): firebase.database.Reference {
+  return this.eventList.child(eventId);
+}
+
+}
+
+
+
